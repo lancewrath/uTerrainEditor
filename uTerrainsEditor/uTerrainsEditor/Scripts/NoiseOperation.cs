@@ -22,17 +22,18 @@ namespace Zorlock.uTerrains
         [SerializeField] public Rect editorRect = new Rect(0, 0, 100, 100);
         [SerializeField] public OperationType opType = OperationType.Noise;
         [SerializeField] public string OperationID = "";
-
+        [SerializeField] public Gradient gradient;
         #region noise fields
-        [SerializeField] public float frequency = 1f / 90f;
+        [SerializeField] public float frequency = 1f;
         [SerializeField] public float scale = 1f;
+        
         [SerializeField] public int seed;
         [SerializeField] public NoiseQuality quality = NoiseQuality.Standard;
         [SerializeField] public Operator blendop = Operator.add;
         [SerializeField] public int steps = 10;
         public float lightBrightness = 1;
         public float lightContrast = 10;
-        [SerializeField] public int octaves = 6;
+        [SerializeField] public int octaves = 2;
         [SerializeField] public float lacunarity = 2;
         [SerializeField] public float displacement = 10;
         [SerializeField] public bool bUseDistance = false;
@@ -45,6 +46,7 @@ namespace Zorlock.uTerrains
         public Texture2D previewtex;
         public LibNoise.IModule3D noisemodule;
 
+
         public enum Operator
         {
             add,subtract,multiply,max,min
@@ -52,7 +54,7 @@ namespace Zorlock.uTerrains
 
         public enum OperationType
         {
-            Start,Noise,Perlin,Simplex,Terrace,Voronoi,Billow,Curve,Final,Turbulence,Blend,HMF,HybridMF,MultiF
+            Start,Noise,Perlin,Simplex,Terrace,Voronoi,Billow,Curve,Final,Turbulence,Blend,HMF,HybridMF,MultiF,Texport,Pipe,Scale,ScaleBias
         }
 
         
@@ -62,6 +64,19 @@ namespace Zorlock.uTerrains
         {
             switch(opType)
             {
+
+                case OperationType.ScaleBias:
+                    CreateScaleBiasNoise();
+                    break;
+
+                case OperationType.Scale:
+                    CreateScaleNoise();
+                    break;
+
+                case OperationType.Pipe:
+                    CreatePipeNoise();
+                    break;
+
                 case OperationType.MultiF:
                     CreateMultiFNoise();
                     break;
@@ -101,6 +116,10 @@ namespace Zorlock.uTerrains
                     CreateBlendNoise();
                     break;
 
+                case OperationType.Texport:
+                    CreateFinalNoise();
+                    break;
+
                 case OperationType.Final:
                     CreateFinalNoise();
                     break;
@@ -109,6 +128,96 @@ namespace Zorlock.uTerrains
             
         }
 
+        public void CreateScaleBiasNoise()
+        {
+            if (opIn[0] != null)
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Modifier.ScaleBias scaleb = new LibNoise.Modifier.ScaleBias(opIn[0].noisemodule);
+                scaleb.Scale = scale;
+                scaleb.Bias = bias;
+                scaleb.SourceModule = opIn[0].noisemodule;
+
+
+                noisemodule = scaleb;
+            }
+            else
+            {
+                //opIn[0].CreateNoise();
+                LibNoise.Modifier.ScaleBias scaleb = new LibNoise.Modifier.ScaleBias(new LibNoise.Primitive.ImprovedPerlin(seed, quality));
+                scaleb.Scale = scale;
+                scaleb.Bias = bias;
+                scaleb.SourceModule = opIn[0].noisemodule;
+
+
+                noisemodule = scaleb;
+            }
+
+
+
+        }
+
+        public void CreateScaleNoise()
+        {
+            if (opIn[0] != null)
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Transformer.ScalePoint scalep = new LibNoise.Transformer.ScalePoint(opIn[0].noisemodule);
+                scalep.XScale = scale;
+                scalep.YScale = scale;
+                scalep.ZScale = scale;
+                scalep.SourceModule = opIn[0].noisemodule;
+
+
+                noisemodule = scalep;
+            }
+            else
+            {
+                //opIn[0].CreateNoise();
+                LibNoise.Transformer.ScalePoint scalep = new LibNoise.Transformer.ScalePoint(new LibNoise.Primitive.ImprovedPerlin(seed, quality));
+                scalep.XScale = scale;
+                scalep.YScale = scale;
+                scalep.ZScale = scale;
+                scalep.SourceModule = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+
+
+                noisemodule = scalep;
+            }
+
+
+
+        }
+
+        public void CreatePipeNoise()
+        {
+            if (opIn[0] != null)
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Filter.Pipe pipe = new LibNoise.Filter.Pipe();
+                pipe.Frequency = frequency;
+                pipe.Lacunarity = lacunarity;
+                pipe.OctaveCount = octaves;
+                pipe.Gain = gain;
+
+                pipe.Primitive3D = opIn[0].noisemodule;
+
+                noisemodule = pipe;
+            }
+            else
+            {
+                //opIn[0].CreateNoise();
+                LibNoise.Filter.Pipe pipe = new LibNoise.Filter.Pipe();
+                pipe.Frequency = frequency;
+                pipe.Lacunarity = lacunarity;
+                pipe.OctaveCount = octaves;
+                pipe.Gain = gain;
+                pipe.Primitive3D = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+                noisemodule = pipe;
+            }
+
+
+
+        }
 
         public void CreateMultiFNoise()
         {
@@ -127,7 +236,7 @@ namespace Zorlock.uTerrains
             }
             else
             {
-                opIn[0].CreateNoise();
+                //opIn[0].CreateNoise();
                 LibNoise.Filter.MultiFractal hmf = new LibNoise.Filter.MultiFractal();
                 hmf.Frequency = frequency;
                 hmf.Gain = gain;
@@ -158,7 +267,7 @@ namespace Zorlock.uTerrains
             }
             else
             {
-                opIn[0].CreateNoise();
+                //opIn[0].CreateNoise();
                 LibNoise.Filter.HybridMultiFractal hmf = new LibNoise.Filter.HybridMultiFractal();
                 hmf.Frequency = frequency;
                 hmf.Gain = gain;
@@ -187,7 +296,7 @@ namespace Zorlock.uTerrains
                 noisemodule = hmf;
             } else
             {
-                opIn[0].CreateNoise();
+                //opIn[0].CreateNoise();
                 LibNoise.Filter.HeterogeneousMultiFractal hmf = new LibNoise.Filter.HeterogeneousMultiFractal();
                 hmf.Frequency = frequency;
                 hmf.Gain = gain;
@@ -257,7 +366,7 @@ namespace Zorlock.uTerrains
         public void CreateFinalNoise()
         {
             //basically just gets the previous node and generates
-            if (opIn != null)
+            if (opIn[0] != null)
             {
                 opIn[0].CreateNoise();
                 noisemodule = opIn[0].noisemodule;
@@ -285,7 +394,13 @@ namespace Zorlock.uTerrains
                 
             } else
             {
-                noisemodule = new LibNoise.Modifier.Curve(new LibNoise.Primitive.ImprovedPerlin(seed, quality));
+                LibNoise.Transformer.Turbulence turbulence = new LibNoise.Transformer.Turbulence(new LibNoise.Primitive.ImprovedPerlin(seed, quality));
+                turbulence.Power = power;
+
+                turbulence.XDistortModule = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+                turbulence.YDistortModule = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+                turbulence.ZDistortModule = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+                noisemodule = turbulence;
             }
         }
 
@@ -324,11 +439,12 @@ namespace Zorlock.uTerrains
                 billow.OctaveCount = octaves;
                 billow.Scale = scale;
                 billow.Bias = bias;
+                
                 billow.Primitive3D = opIn[0].noisemodule;
                 noisemodule = billow;
             } else
             {
-                opIn[0].CreateNoise();
+                //opIn[0].CreateNoise();
                 LibNoise.Filter.Billow billow = new LibNoise.Filter.Billow();
                 billow.Frequency = frequency;
                 billow.Gain = gain;
@@ -422,14 +538,14 @@ namespace Zorlock.uTerrains
     
 
 
-    public virtual Texture2D Preview(Texture2D tex)
+        public virtual Texture2D Preview(Texture2D tex)
         {
 
             return RenderTexture(tex);
         }
 
 
- 
+
 
 
         public Texture2D RenderTexture(Texture2D tex)

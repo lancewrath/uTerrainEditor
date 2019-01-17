@@ -18,7 +18,7 @@ namespace Zorlock.uTerrains.uEditor
 
         public enum NodeType
         {
-            Node,Start,Noise,Perlin,Simplex,Blend,Terrace,Voroni,Billow,Curve,Final,Turbulence,HMF,HybridMF,MultiF
+            Node,Start,Noise,Perlin,Simplex,Blend,Terrace,Voroni,Billow,Curve,Final,Turbulence,HMF,HybridMF,MultiF,Texport,Pipe,Scale,ScaleBias
         }
 
 
@@ -27,6 +27,10 @@ namespace Zorlock.uTerrains.uEditor
 
         }
 
+        public void Drag(Vector2 delta)
+        {
+            windowRect.position += delta;
+        }
 
         public virtual void SetNodeIn(Node nin)
         {

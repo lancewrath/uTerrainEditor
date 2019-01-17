@@ -19,9 +19,12 @@ namespace Zorlock.uTerrains.uEditor
         bool clickedWindow;
         Vector3 mousePosition;
         bool rebuild;
+        private Vector2 drag;
+        private Vector2 offset;
+
         public enum UserActions
         {
-            AddNode,AddStart,AddNoise,AddPerlin,AddSimplex,AddTerrace,AddVoronoi,AddBillow,AddCurve,AddFinal,AddTurbulence,AddBlend,AddHMF,AddHybridMF,AddMultiF,DeleteNode
+            AddNode,AddStart,AddNoise,AddPerlin,AddSimplex,AddTerrace,AddVoronoi,AddBillow,AddCurve,AddFinal,AddTurbulence,AddBlend,AddHMF,AddHybridMF,AddMultiF,AddTexport,AddPipe,AddScale,AddScaleBias,DeleteNode
         }
 
         #endregion
@@ -33,7 +36,9 @@ namespace Zorlock.uTerrains.uEditor
         #region GUI Methods
         private void OnGUI()
         {
-            if(rebuild)
+            DrawGrid(20, 0.2f, Color.gray);
+            DrawGrid(100, 0.4f, Color.gray);
+            if (rebuild)
             {
                 windows.Clear();
                 connections.Clear();
@@ -42,6 +47,27 @@ namespace Zorlock.uTerrains.uEditor
                 {
                     switch(n.opType)
                     {
+
+
+                        case NoiseOperation.OperationType.ScaleBias:
+                            noiseNode = new ScaleBiasNode();
+                            noiseNode.title = "Scale Bias";
+                            break;
+
+                        case NoiseOperation.OperationType.Scale:
+                            noiseNode = new ScaleNode();
+                            noiseNode.title = "Scale Noise";
+                            break;
+
+                        case NoiseOperation.OperationType.Pipe:
+                            noiseNode = new PipeNode();
+                            noiseNode.title = "Pipe Noise";
+                            break;
+
+                        case NoiseOperation.OperationType.Texport:
+                            noiseNode = new TexportNode();
+                            noiseNode.title = "Export Texture";
+                            break;
 
                         case NoiseOperation.OperationType.MultiF:
                             noiseNode = new MultiFNode();
@@ -135,6 +161,7 @@ namespace Zorlock.uTerrains.uEditor
             mousePosition = e.mousePosition;
             UserInput(e);
             DrawWindows();
+            DrawConnectionLine(e);
             DrawConnections();
         }
 
@@ -213,13 +240,27 @@ namespace Zorlock.uTerrains.uEditor
 
         private void DrawNodeWindow(int id)
         {
+
+
             windows[id].DrawWindow();
             GUI.DragWindow();
             windows[id].UpdateWindow();
+
         }
 
         private void UserInput(Event e)
         {
+            drag = Vector2.zero;
+            if(e.button == 2)
+            {
+                if (e.type == EventType.MouseDrag)
+                {
+
+                    OnDrag(e.delta);
+                    e.Use();
+
+                }
+            }
             if(e.button==1)
             {
                 if(e.type==EventType.MouseDown)
@@ -233,7 +274,31 @@ namespace Zorlock.uTerrains.uEditor
                 {
                     LeftClick(e);
                 }
+
             }
+        }
+
+
+
+    private void OnDrag(Vector2 delta)
+        {
+            drag = delta;
+
+            if (windows != null)
+            {
+                for (int i = 0; i < windows.Count; i++)
+                {
+                    windows[i].Drag(drag);
+                }
+            }
+
+            GUI.changed = true;
+        }
+
+        private void ScrollUI(Event e)
+        {
+            
+            
         }
 
         private void LeftClick(Event e)
@@ -266,18 +331,22 @@ namespace Zorlock.uTerrains.uEditor
         void AddNode(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Add Start"), false, ContextCallBack, UserActions.AddStart);
-            menu.AddItem(new GUIContent("Add Perlin Noise"), false, ContextCallBack, UserActions.AddPerlin);
-            menu.AddItem(new GUIContent("Add Simplex Noise"), false, ContextCallBack, UserActions.AddSimplex);
-            menu.AddItem(new GUIContent("Add Terrace"), false, ContextCallBack, UserActions.AddTerrace);
-            menu.AddItem(new GUIContent("Add Voronoi"), false, ContextCallBack, UserActions.AddVoronoi);
-            menu.AddItem(new GUIContent("Add Billow"), false, ContextCallBack, UserActions.AddBillow);
-            menu.AddItem(new GUIContent("Add Curve"), false, ContextCallBack, UserActions.AddCurve);
-            menu.AddItem(new GUIContent("Add Turbulence"), false, ContextCallBack, UserActions.AddTurbulence);
-            menu.AddItem(new GUIContent("Add Blend"), false, ContextCallBack, UserActions.AddBlend);
-            menu.AddItem(new GUIContent("Add Heterogeneous MultiFractal"), false, ContextCallBack, UserActions.AddHMF);
-            menu.AddItem(new GUIContent("Add Hybrid MultiFractal"), false, ContextCallBack, UserActions.AddHybridMF);
-            menu.AddItem(new GUIContent("Add Multi Fractal"), false, ContextCallBack, UserActions.AddMultiF);
+            //menu.AddItem(new GUIContent("Add Start"), false, ContextCallBack, UserActions.AddStart);
+            menu.AddItem(new GUIContent("Noise/Perlin Noise"), false, ContextCallBack, UserActions.AddPerlin);
+            menu.AddItem(new GUIContent("Noise/Simplex Noise"), false, ContextCallBack, UserActions.AddSimplex);
+            menu.AddItem(new GUIContent("Modifier/Terrace"), false, ContextCallBack, UserActions.AddTerrace);
+            menu.AddItem(new GUIContent("Filter/Voronoi"), false, ContextCallBack, UserActions.AddVoronoi);
+            menu.AddItem(new GUIContent("Filter/Billow"), false, ContextCallBack, UserActions.AddBillow);
+            menu.AddItem(new GUIContent("Transform/Curve"), false, ContextCallBack, UserActions.AddCurve);
+            menu.AddItem(new GUIContent("Transform/Turbulence"), false, ContextCallBack, UserActions.AddTurbulence);
+            menu.AddItem(new GUIContent("Modifier/Blend"), false, ContextCallBack, UserActions.AddBlend);
+            menu.AddItem(new GUIContent("Filter/Heterogeneous MultiFractal"), false, ContextCallBack, UserActions.AddHMF);
+            menu.AddItem(new GUIContent("Filter/Hybrid MultiFractal"), false, ContextCallBack, UserActions.AddHybridMF);
+            menu.AddItem(new GUIContent("Filter/Multi Fractal"), false, ContextCallBack, UserActions.AddMultiF);
+            menu.AddItem(new GUIContent("Filter/Pipe"), false, ContextCallBack, UserActions.AddPipe);
+            menu.AddItem(new GUIContent("Transform/Scale"), false, ContextCallBack, UserActions.AddScale);
+            menu.AddItem(new GUIContent("Modifier/ScaleBias"), false, ContextCallBack, UserActions.AddScaleBias);
+            menu.AddItem(new GUIContent("Misc/Texture Export"), false, ContextCallBack, UserActions.AddTexport);
             menu.AddItem(new GUIContent("Add Final"), false, ContextCallBack, UserActions.AddFinal);
             menu.ShowAsContext();
             e.Use();
@@ -326,6 +395,18 @@ namespace Zorlock.uTerrains.uEditor
                 case Node.NodeType.MultiF:
                     menu.AddItem(new GUIContent("Delete Multi Fractal"), false, ContextCallBack, UserActions.DeleteNode);
                     break;
+                case Node.NodeType.Texport:
+                    menu.AddItem(new GUIContent("Delete Texture Export"), false, ContextCallBack, UserActions.DeleteNode);
+                    break;
+                case Node.NodeType.Pipe:
+                    menu.AddItem(new GUIContent("Delete Pipe"), false, ContextCallBack, UserActions.DeleteNode);
+                    break;
+                case Node.NodeType.Scale:
+                    menu.AddItem(new GUIContent("Delete Scale"), false, ContextCallBack, UserActions.DeleteNode);
+                    break;
+                case Node.NodeType.ScaleBias:
+                    menu.AddItem(new GUIContent("Delete Scale Bias"), false, ContextCallBack, UserActions.DeleteNode);
+                    break;
                 case Node.NodeType.Final:
                     menu.AddItem(new GUIContent("Delete Final"), false, ContextCallBack, UserActions.DeleteNode);
                     break;
@@ -348,6 +429,35 @@ namespace Zorlock.uTerrains.uEditor
             switch(a)
             {
                 case UserActions.AddNode:
+                    break;
+
+
+                case UserActions.AddScaleBias:
+                    noiseNode = new ScaleBiasNode();
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 300);
+                    noiseNode.title = "Scale Bias";
+
+                    break;
+
+                case UserActions.AddScale:
+                    noiseNode = new ScaleNode();
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 300);
+                    noiseNode.title = "Scale Noise";
+
+                    break;
+
+                case UserActions.AddPipe:
+                    noiseNode = new PipeNode();
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 300);
+                    noiseNode.title = "Pipe Noise";
+
+                    break;
+
+                case UserActions.AddTexport:
+                    noiseNode = new TexportNode();
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 300);
+                    noiseNode.title = "Export Texture";
+
                     break;
 
                 case UserActions.AddMultiF:
@@ -488,6 +598,64 @@ namespace Zorlock.uTerrains.uEditor
         #endregion
 
         #region Helper Methods
+
+        private void DrawGrid(float gridSpacing, float gridOpacity, Color gridColor)
+        {
+            int widthDivs = Mathf.CeilToInt(position.width / gridSpacing);
+            int heightDivs = Mathf.CeilToInt(position.height / gridSpacing);
+
+            Handles.BeginGUI();
+            Handles.color = new Color(gridColor.r, gridColor.g, gridColor.b, gridOpacity);
+
+            offset += drag * 0.5f;
+            Vector3 newOffset = new Vector3(offset.x % gridSpacing, offset.y % gridSpacing, 0);
+
+            for (int i = 0; i < widthDivs; i++)
+            {
+                Handles.DrawLine(new Vector3(gridSpacing * i, -gridSpacing, 0) + newOffset, new Vector3(gridSpacing * i, position.height, 0f) + newOffset);
+            }
+
+            for (int j = 0; j < heightDivs; j++)
+            {
+                Handles.DrawLine(new Vector3(-gridSpacing, gridSpacing * j, 0) + newOffset, new Vector3(position.width, gridSpacing * j, 0f) + newOffset);
+            }
+
+            Handles.color = Color.white;
+            Handles.EndGUI();
+        }
+
+        private void DrawConnectionLine(Event e)
+        {
+            if (selectedInPoint != null && selectedOutPoint == null)
+            {
+                Handles.DrawBezier(
+                    selectedInPoint.rect.center,
+                    e.mousePosition,
+                    selectedInPoint.rect.center + Vector2.left * 50f,
+                    e.mousePosition - Vector2.left * 50f,
+                    Color.white,
+                    null,
+                    2f
+                );
+
+                GUI.changed = true;
+            }
+
+            if (selectedOutPoint != null && selectedInPoint == null)
+            {
+                Handles.DrawBezier(
+                    selectedOutPoint.rect.center,
+                    e.mousePosition,
+                    selectedOutPoint.rect.center - Vector2.left * 50f,
+                    e.mousePosition + Vector2.left * 50f,
+                    Color.white,
+                    null,
+                    2f
+                );
+
+                GUI.changed = true;
+            }
+        }
 
         private void OnClickInPoint(ConnectionPoint inPoint)
         {

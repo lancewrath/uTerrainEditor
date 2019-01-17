@@ -7,14 +7,13 @@ using LibNoise;
 
 namespace Zorlock.uTerrains.uEditor
 {
-    public class TurbulenceNode : NoiseNode
+    public class ScaleNode : NoiseNode
     {
-
         public override void Init()
         {
-            nodetype = NodeType.Turbulence;
+            nodetype = NodeType.Scale;
             noiseOperation = new NoiseOperation();
-            noiseOperation.opType = NoiseOperation.OperationType.Turbulence;
+            noiseOperation.opType = NoiseOperation.OperationType.Scale;
             noiseOperation.editorRect = windowRect;
             noiseOperation.OperationID = noiseOperation.GetUniqueID();
 
@@ -22,18 +21,18 @@ namespace Zorlock.uTerrains.uEditor
 
         public override void Init(NoiseOperation n)
         {
-            nodetype = NodeType.Turbulence;
+            nodetype = NodeType.Scale;
             noiseOperation = n;
-            noiseOperation.opType = NoiseOperation.OperationType.Turbulence;
+            noiseOperation.opType = NoiseOperation.OperationType.Scale;
 
         }
 
         public override void DrawWindow()
         {
 
-            noiseOperation.power = EditorGUILayout.FloatField("Power:", noiseOperation.power);
+
             noiseOperation.scale = EditorGUILayout.FloatField("Scale:", noiseOperation.scale);
-            noiseOperation.seed = EditorGUILayout.IntField("Seed:", noiseOperation.seed);
+
             previewtex();
         }
 

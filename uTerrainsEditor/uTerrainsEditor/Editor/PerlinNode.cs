@@ -33,8 +33,8 @@ namespace Zorlock.uTerrains.uEditor
         public override void DrawWindow()
         {
 
-            noiseOperation.frequency = EditorGUILayout.FloatField("Frequency:", noiseOperation.frequency);
-            noiseOperation.scale = EditorGUILayout.FloatField("Scale:", noiseOperation.scale);
+           // noiseOperation.frequency = EditorGUILayout.FloatField("Frequency:", noiseOperation.frequency);
+           // noiseOperation.scale = EditorGUILayout.FloatField("Scale:", noiseOperation.scale);
             noiseOperation.seed = EditorGUILayout.IntField("Seed:", noiseOperation.seed);
             noiseOperation.quality = (NoiseQuality)EditorGUILayout.EnumPopup("Quality:", noiseOperation.quality);
             previewtex();
