@@ -18,7 +18,7 @@ namespace Zorlock.uTerrains.uEditor
 
         public enum NodeType
         {
-            Node,Start,Noise,Perlin,Simplex,Blend,Terrace,Voroni,Billow,Curve,Final,Turbulence,HMF
+            Node,Start,Noise,Perlin,Simplex,Blend,Terrace,Voroni,Billow,Curve,Final,Turbulence,HMF,HybridMF,MultiF
         }
 
 

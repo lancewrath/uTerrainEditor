@@ -21,7 +21,7 @@ namespace Zorlock.uTerrains.uEditor
         bool rebuild;
         public enum UserActions
         {
-            AddNode,AddStart,AddNoise,AddPerlin,AddSimplex,AddTerrace,AddVoronoi,AddBillow,AddCurve,AddFinal,AddTurbulence,AddBlend,AddHMF,DeleteNode
+            AddNode,AddStart,AddNoise,AddPerlin,AddSimplex,AddTerrace,AddVoronoi,AddBillow,AddCurve,AddFinal,AddTurbulence,AddBlend,AddHMF,AddHybridMF,AddMultiF,DeleteNode
         }
 
         #endregion
@@ -42,6 +42,16 @@ namespace Zorlock.uTerrains.uEditor
                 {
                     switch(n.opType)
                     {
+
+                        case NoiseOperation.OperationType.MultiF:
+                            noiseNode = new MultiFNode();
+                            noiseNode.title = "Multi Fractal";
+                            break;
+
+                        case NoiseOperation.OperationType.HybridMF:
+                            noiseNode = new HybridMFNode();
+                            noiseNode.title = "Hybrid MultiFractal";
+                            break;
 
                         case NoiseOperation.OperationType.HMF:
                             noiseNode = new HMFNode();
@@ -266,6 +276,8 @@ namespace Zorlock.uTerrains.uEditor
             menu.AddItem(new GUIContent("Add Turbulence"), false, ContextCallBack, UserActions.AddTurbulence);
             menu.AddItem(new GUIContent("Add Blend"), false, ContextCallBack, UserActions.AddBlend);
             menu.AddItem(new GUIContent("Add Heterogeneous MultiFractal"), false, ContextCallBack, UserActions.AddHMF);
+            menu.AddItem(new GUIContent("Add Hybrid MultiFractal"), false, ContextCallBack, UserActions.AddHybridMF);
+            menu.AddItem(new GUIContent("Add Multi Fractal"), false, ContextCallBack, UserActions.AddMultiF);
             menu.AddItem(new GUIContent("Add Final"), false, ContextCallBack, UserActions.AddFinal);
             menu.ShowAsContext();
             e.Use();
@@ -308,6 +320,12 @@ namespace Zorlock.uTerrains.uEditor
                 case Node.NodeType.HMF:
                     menu.AddItem(new GUIContent("Delete Heterogeneous MultiFractal"), false, ContextCallBack, UserActions.DeleteNode);
                     break;
+                case Node.NodeType.HybridMF:
+                    menu.AddItem(new GUIContent("Delete Hybrid MultiFractal"), false, ContextCallBack, UserActions.DeleteNode);
+                    break;
+                case Node.NodeType.MultiF:
+                    menu.AddItem(new GUIContent("Delete Multi Fractal"), false, ContextCallBack, UserActions.DeleteNode);
+                    break;
                 case Node.NodeType.Final:
                     menu.AddItem(new GUIContent("Delete Final"), false, ContextCallBack, UserActions.DeleteNode);
                     break;
@@ -332,6 +350,19 @@ namespace Zorlock.uTerrains.uEditor
                 case UserActions.AddNode:
                     break;
 
+                case UserActions.AddMultiF:
+                    noiseNode = new MultiFNode();
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 300);
+                    noiseNode.title = "Multi Fractal";
+
+                    break;
+
+                case UserActions.AddHybridMF:
+                    noiseNode = new HybridMFNode();
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 300);
+                    noiseNode.title = "Hybrid MultiFractal";
+
+                    break;
 
                 case UserActions.AddHMF:
                     noiseNode = new HMFNode();

@@ -52,7 +52,7 @@ namespace Zorlock.uTerrains
 
         public enum OperationType
         {
-            Start,Noise,Perlin,Simplex,Terrace,Voronoi,Billow,Curve,Final,Turbulence,Blend,HMF
+            Start,Noise,Perlin,Simplex,Terrace,Voronoi,Billow,Curve,Final,Turbulence,Blend,HMF,HybridMF,MultiF
         }
 
         
@@ -62,6 +62,14 @@ namespace Zorlock.uTerrains
         {
             switch(opType)
             {
+                case OperationType.MultiF:
+                    CreateMultiFNoise();
+                    break;
+
+                case OperationType.HybridMF:
+                    CreateHybridMFNoise();
+                    break;
+
                 case OperationType.HMF:
                     CreateHMFNoise();
                     break;
@@ -100,7 +108,70 @@ namespace Zorlock.uTerrains
             }
             
         }
-        
+
+
+        public void CreateMultiFNoise()
+        {
+            if (opIn[0] != null)
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Filter.MultiFractal hmf = new LibNoise.Filter.MultiFractal();
+                hmf.Frequency = frequency;
+                hmf.Gain = gain;
+                hmf.Lacunarity = lacunarity;
+                hmf.OctaveCount = octaves;
+                
+                hmf.Primitive3D = opIn[0].noisemodule;
+
+                noisemodule = hmf;
+            }
+            else
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Filter.MultiFractal hmf = new LibNoise.Filter.MultiFractal();
+                hmf.Frequency = frequency;
+                hmf.Gain = gain;
+                hmf.Lacunarity = lacunarity;
+                hmf.OctaveCount = octaves;
+                hmf.Primitive3D = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+                noisemodule = hmf;
+            }
+
+
+
+        }
+
+        public void CreateHybridMFNoise()
+        {
+            if (opIn[0] != null)
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Filter.HybridMultiFractal hmf = new LibNoise.Filter.HybridMultiFractal();
+                hmf.Frequency = frequency;
+                hmf.Gain = gain;
+                hmf.Lacunarity = lacunarity;
+                hmf.OctaveCount = octaves;
+                
+                hmf.Primitive3D = opIn[0].noisemodule;
+
+                noisemodule = hmf;
+            }
+            else
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Filter.HybridMultiFractal hmf = new LibNoise.Filter.HybridMultiFractal();
+                hmf.Frequency = frequency;
+                hmf.Gain = gain;
+                hmf.Lacunarity = lacunarity;
+                hmf.OctaveCount = octaves;
+                hmf.Primitive3D = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+                noisemodule = hmf;
+            }
+
+
+
+        }
+
         public void CreateHMFNoise()
         {
             if(opIn[0]!=null)
