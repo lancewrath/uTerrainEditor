@@ -54,7 +54,7 @@ namespace Zorlock.uTerrains
 
         public enum OperationType
         {
-            Start,Noise,Perlin,Simplex,Terrace,Voronoi,Billow,Curve,Final,Turbulence,Blend,HMF,HybridMF,MultiF,Texport,Pipe,Scale,ScaleBias
+            Start,Noise,Perlin,Simplex,Terrace,Voronoi,Billow,Curve,Final,Turbulence,Blend,HMF,HybridMF,MultiF,Texport,Pipe,Scale,ScaleBias,RigidMF,Invert
         }
 
         
@@ -64,6 +64,13 @@ namespace Zorlock.uTerrains
         {
             switch(opType)
             {
+                case OperationType.Invert:
+                    CreateInvertNoise();
+                    break;
+
+                case OperationType.RigidMF:
+                    CreateRigidMFNoise();
+                    break;
 
                 case OperationType.ScaleBias:
                     CreateScaleBiasNoise();
@@ -128,6 +135,67 @@ namespace Zorlock.uTerrains
             
         }
 
+
+        public void CreateInvertNoise()
+        {
+            if (opIn[0] != null)
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Modifier.Invert invert = new LibNoise.Modifier.Invert(opIn[0].noisemodule);
+                invert.SourceModule = opIn[0].noisemodule;
+
+
+                noisemodule = invert;
+            }
+            else
+            {
+                //opIn[0].CreateNoise();
+                LibNoise.Modifier.Invert invert = new LibNoise.Modifier.Invert(new LibNoise.Primitive.ImprovedPerlin(seed, quality));
+                invert.SourceModule = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+
+
+                noisemodule = invert;
+            }
+
+
+
+        }
+
+
+        public void CreateRigidMFNoise()
+        {
+            if (opIn[0] != null)
+            {
+                opIn[0].CreateNoise();
+                LibNoise.Filter.RidgedMultiFractal rigid = new LibNoise.Filter.RidgedMultiFractal();
+                rigid.Lacunarity = lacunarity;
+                rigid.OctaveCount = octaves;
+                rigid.Frequency = frequency;
+                rigid.Gain = gain;
+                rigid.Primitive3D = opIn[0].noisemodule;
+
+
+                noisemodule = rigid;
+            }
+            else
+            {
+                //opIn[0].CreateNoise();
+                
+                LibNoise.Filter.RidgedMultiFractal rigid = new LibNoise.Filter.RidgedMultiFractal();
+                rigid.Lacunarity = lacunarity;
+                rigid.OctaveCount = octaves;
+                rigid.Frequency = frequency;
+                rigid.Gain = gain;
+                rigid.Primitive3D = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
+
+
+                noisemodule = rigid;
+            }
+
+
+
+        }
+
         public void CreateScaleBiasNoise()
         {
             if (opIn[0] != null)
@@ -147,7 +215,7 @@ namespace Zorlock.uTerrains
                 LibNoise.Modifier.ScaleBias scaleb = new LibNoise.Modifier.ScaleBias(new LibNoise.Primitive.ImprovedPerlin(seed, quality));
                 scaleb.Scale = scale;
                 scaleb.Bias = bias;
-                scaleb.SourceModule = opIn[0].noisemodule;
+                scaleb.SourceModule = new LibNoise.Primitive.ImprovedPerlin(seed, quality);
 
 
                 noisemodule = scaleb;
@@ -340,7 +408,7 @@ namespace Zorlock.uTerrains
                         break;
 
                     case Operator.max:
-                        LibNoise.Combiner.Min max = new LibNoise.Combiner.Min(opIn[0].noisemodule, opIn[1].noisemodule);
+                        LibNoise.Combiner.Max max = new LibNoise.Combiner.Max(opIn[0].noisemodule, opIn[1].noisemodule);
                         noisemodule = max;
                         break;
 
@@ -554,7 +622,7 @@ namespace Zorlock.uTerrains
 
             LibNoise.Builder.NoiseMap nm = new LibNoise.Builder.NoiseMap();
 
-            LibNoise.Builder.NoiseMapBuilderPlane noisemap = new LibNoise.Builder.NoiseMapBuilderPlane(0, (double)scale, 0, (double)scale, true);
+            LibNoise.Builder.NoiseMapBuilderPlane noisemap = new LibNoise.Builder.NoiseMapBuilderPlane(0, (double)tex.width, 0, (double)tex.height, true);
             noisemap.SetSize(tex.width, tex.height);
             noisemap.NoiseMap = nm;
 

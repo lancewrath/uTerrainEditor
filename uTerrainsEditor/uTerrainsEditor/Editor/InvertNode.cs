@@ -7,14 +7,13 @@ using LibNoise;
 
 namespace Zorlock.uTerrains.uEditor
 {
-    public class SimplexNode : NoiseNode
+    public class InvertNode : NoiseNode
     {
-
         public override void Init()
         {
-            nodetype = NodeType.Simplex;
+            nodetype = NodeType.Invert;
             noiseOperation = new NoiseOperation();
-            noiseOperation.opType = NoiseOperation.OperationType.Simplex;
+            noiseOperation.opType = NoiseOperation.OperationType.Invert;
             noiseOperation.editorRect = windowRect;
             noiseOperation.OperationID = noiseOperation.GetUniqueID();
 
@@ -22,21 +21,18 @@ namespace Zorlock.uTerrains.uEditor
 
         public override void Init(NoiseOperation n)
         {
-            nodetype = NodeType.Simplex;
+            nodetype = NodeType.Invert;
             noiseOperation = n;
-            noiseOperation.opType = NoiseOperation.OperationType.Simplex;
+            noiseOperation.opType = NoiseOperation.OperationType.Invert;
 
         }
-
-
 
         public override void DrawWindow()
         {
 
-            //noiseOperation.frequency = EditorGUILayout.FloatField("Frequency:", noiseOperation.frequency);
+
             //noiseOperation.scale = EditorGUILayout.FloatField("Scale:", noiseOperation.scale);
-            noiseOperation.seed = EditorGUILayout.IntField("Seed:", noiseOperation.seed);
-            noiseOperation.quality = (NoiseQuality)EditorGUILayout.EnumPopup("Quality:", noiseOperation.quality);
+
             previewtex();
         }
 
@@ -48,7 +44,7 @@ namespace Zorlock.uTerrains.uEditor
                 EditorGUI.PrefixLabel(new Rect(25, 100, 100, 15), 0, new GUIContent("Preview:"));
                 if (GUI.Button(new Rect(10, 120, windowRect.width - 20, 20), "Update"))
                 {
-                    
+
                     texture = noiseOperation.Preview(texture);
                 }
 
@@ -56,7 +52,6 @@ namespace Zorlock.uTerrains.uEditor
 
             }
         }
-
 
     }
 }

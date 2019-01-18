@@ -52,7 +52,7 @@ namespace Zorlock.uTerrains.uEditor
                     texture = noiseOperation.Preview(texture);
                 }
 
-                EditorGUI.DrawPreviewTexture(new Rect(10, 150, windowRect.width - 20, windowRect.height - 160), texture);
+                EditorGUI.DrawPreviewTexture(new Rect(10, 90, windowRect.width - 20, windowRect.height - 100), texture);
 
             }
         }

@@ -24,7 +24,8 @@ namespace Zorlock.uTerrains.uEditor
 
         public enum UserActions
         {
-            AddNode,AddStart,AddNoise,AddPerlin,AddSimplex,AddTerrace,AddVoronoi,AddBillow,AddCurve,AddFinal,AddTurbulence,AddBlend,AddHMF,AddHybridMF,AddMultiF,AddTexport,AddPipe,AddScale,AddScaleBias,DeleteNode
+            AddNode,AddStart,AddNoise,AddPerlin,AddSimplex,AddTerrace,AddVoronoi,AddBillow,AddCurve,AddFinal,AddTurbulence,AddBlend,AddHMF,AddHybridMF,
+            AddMultiF,AddTexport,AddPipe,AddScale,AddScaleBias,AddRigidMF,AddInvert,DeleteNode
         }
 
         #endregion
@@ -48,6 +49,15 @@ namespace Zorlock.uTerrains.uEditor
                     switch(n.opType)
                     {
 
+                        case NoiseOperation.OperationType.Invert:
+                            noiseNode = new InvertNode();
+                            noiseNode.title = "Invert";
+                            break;
+
+                        case NoiseOperation.OperationType.RigidMF:
+                            noiseNode = new RigidMFNode();
+                            noiseNode.title = "Rigid MultiFractal";
+                            break;
 
                         case NoiseOperation.OperationType.ScaleBias:
                             noiseNode = new ScaleBiasNode();
@@ -334,18 +344,25 @@ namespace Zorlock.uTerrains.uEditor
             //menu.AddItem(new GUIContent("Add Start"), false, ContextCallBack, UserActions.AddStart);
             menu.AddItem(new GUIContent("Noise/Perlin Noise"), false, ContextCallBack, UserActions.AddPerlin);
             menu.AddItem(new GUIContent("Noise/Simplex Noise"), false, ContextCallBack, UserActions.AddSimplex);
-            menu.AddItem(new GUIContent("Modifier/Terrace"), false, ContextCallBack, UserActions.AddTerrace);
-            menu.AddItem(new GUIContent("Filter/Voronoi"), false, ContextCallBack, UserActions.AddVoronoi);
-            menu.AddItem(new GUIContent("Filter/Billow"), false, ContextCallBack, UserActions.AddBillow);
-            menu.AddItem(new GUIContent("Transform/Curve"), false, ContextCallBack, UserActions.AddCurve);
-            menu.AddItem(new GUIContent("Transform/Turbulence"), false, ContextCallBack, UserActions.AddTurbulence);
+
             menu.AddItem(new GUIContent("Modifier/Blend"), false, ContextCallBack, UserActions.AddBlend);
+            menu.AddItem(new GUIContent("Modifier/Invert"), false, ContextCallBack, UserActions.AddInvert);
+            menu.AddItem(new GUIContent("Modifier/ScaleBias"), false, ContextCallBack, UserActions.AddScaleBias);
+            menu.AddItem(new GUIContent("Modifier/Terrace"), false, ContextCallBack, UserActions.AddTerrace);
+            
+            menu.AddItem(new GUIContent("Filter/Billow"), false, ContextCallBack, UserActions.AddBillow);
             menu.AddItem(new GUIContent("Filter/Heterogeneous MultiFractal"), false, ContextCallBack, UserActions.AddHMF);
             menu.AddItem(new GUIContent("Filter/Hybrid MultiFractal"), false, ContextCallBack, UserActions.AddHybridMF);
+            menu.AddItem(new GUIContent("Filter/Rigid MultiFractal"), false, ContextCallBack, UserActions.AddRigidMF);
             menu.AddItem(new GUIContent("Filter/Multi Fractal"), false, ContextCallBack, UserActions.AddMultiF);
             menu.AddItem(new GUIContent("Filter/Pipe"), false, ContextCallBack, UserActions.AddPipe);
+            menu.AddItem(new GUIContent("Filter/Voronoi"), false, ContextCallBack, UserActions.AddVoronoi);
+            
+            menu.AddItem(new GUIContent("Transform/Curve"), false, ContextCallBack, UserActions.AddCurve);
             menu.AddItem(new GUIContent("Transform/Scale"), false, ContextCallBack, UserActions.AddScale);
-            menu.AddItem(new GUIContent("Modifier/ScaleBias"), false, ContextCallBack, UserActions.AddScaleBias);
+            menu.AddItem(new GUIContent("Transform/Turbulence"), false, ContextCallBack, UserActions.AddTurbulence);
+            
+
             menu.AddItem(new GUIContent("Misc/Texture Export"), false, ContextCallBack, UserActions.AddTexport);
             menu.AddItem(new GUIContent("Add Final"), false, ContextCallBack, UserActions.AddFinal);
             menu.ShowAsContext();
@@ -392,6 +409,9 @@ namespace Zorlock.uTerrains.uEditor
                 case Node.NodeType.HybridMF:
                     menu.AddItem(new GUIContent("Delete Hybrid MultiFractal"), false, ContextCallBack, UserActions.DeleteNode);
                     break;
+                case Node.NodeType.RigidMF:
+                    menu.AddItem(new GUIContent("Delete Rigid MultiFractal"), false, ContextCallBack, UserActions.DeleteNode);
+                    break;
                 case Node.NodeType.MultiF:
                     menu.AddItem(new GUIContent("Delete Multi Fractal"), false, ContextCallBack, UserActions.DeleteNode);
                     break;
@@ -406,6 +426,9 @@ namespace Zorlock.uTerrains.uEditor
                     break;
                 case Node.NodeType.ScaleBias:
                     menu.AddItem(new GUIContent("Delete Scale Bias"), false, ContextCallBack, UserActions.DeleteNode);
+                    break;
+                case Node.NodeType.Invert:
+                    menu.AddItem(new GUIContent("Delete Invert"), false, ContextCallBack, UserActions.DeleteNode);
                     break;
                 case Node.NodeType.Final:
                     menu.AddItem(new GUIContent("Delete Final"), false, ContextCallBack, UserActions.DeleteNode);
@@ -431,6 +454,19 @@ namespace Zorlock.uTerrains.uEditor
                 case UserActions.AddNode:
                     break;
 
+                case UserActions.AddInvert:
+                    noiseNode = new InvertNode();
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 300);
+                    noiseNode.title = "Invert";
+
+                    break;
+
+                case UserActions.AddRigidMF:
+                    noiseNode = new RigidMFNode();
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 300);
+                    noiseNode.title = "Rigid MultiFractal";
+
+                    break;
 
                 case UserActions.AddScaleBias:
                     noiseNode = new ScaleBiasNode();
@@ -490,28 +526,28 @@ namespace Zorlock.uTerrains.uEditor
 
                 case UserActions.AddTurbulence:
                     noiseNode = new TurbulenceNode();
-                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 400);
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 350);
                     noiseNode.title = "Turbulence";
 
                     break;
 
                 case UserActions.AddCurve:
                     noiseNode = new CurveNode();
-                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 400);
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 250);
                     noiseNode.title = "Curve";
 
                     break;
 
                 case UserActions.AddBillow:
                     noiseNode = new BillowNode();
-                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 400);
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 350);
                     noiseNode.title = "Billow";
 
                     break;
 
                 case UserActions.AddVoronoi:
                     noiseNode = new VoronoiNode();
-                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 400);
+                    noiseNode.windowRect = new Rect(mousePosition.x, mousePosition.y, 200, 350);
                     noiseNode.title = "Voronoi";
 
                     break;
